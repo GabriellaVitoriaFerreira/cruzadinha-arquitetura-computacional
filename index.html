@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cruzadinha — Arquitetura Computacional</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="background-glow"></div>
+
+  <header class="topbar">
+    <div class="title-group">
+      <span class="badge">Arquitetura Computacional · Sprint 3</span>
+      <h1>Palavras Cruzadas</h1>
+    </div>
+
+    <div class="controls">
+      <div class="score-pill" id="contador" aria-live="polite">
+        <span class="dot"></span>
+        <span id="texto-contador">0 de 16 palavras</span>
+      </div>
+      <button id="btn-conferir" class="btn btn-primary" type="button">Conferir</button>
+      <button id="btn-reiniciar" class="btn btn-secondary" type="button">Reiniciar</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="board-card" aria-label="Tabuleiro da cruzadinha">
+      <div class="active-clue-bar" id="pista-ativa">
+        Selecione uma casa no tabuleiro ou clique em uma pista para começar.
+      </div>
+      <div class="board-wrapper">
+        <div id="tabuleiro" class="tabuleiro" role="grid"></div>
+      </div>
+    </section>
+
+    <aside class="clues-panel">
+      <div class="clue-box">
+        <h2>Horizontais</h2>
+        <ul id="lista-horizontais" class="clue-list"></ul>
+      </div>
+
+      <div class="clue-box">
+        <h2>Verticais</h2>
+        <ul id="lista-verticais" class="clue-list"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
