@@ -418,3 +418,94 @@ function atualizarContador(acertos) {
 
 document.getElementById("btn-conferir").addEventListener("click", conferirRespostas);
 document.getElementById("btn-reiniciar").addEventListener("click", reiniciarJogo);
+
+.score-pill {
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+
+.score-pill.updated {
+  transform: scale(1.06);
+  border-color: var(--accent);
+}
+
+.btn {
+  transition: transform 0.18s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.btn:active {
+  transform: scale(0.96);
+}
+
+.btn-primary:hover {
+  box-shadow: 0 6px 22px rgba(14, 165, 233, 0.45);
+  transform: translateY(-1px);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-cell-hover);
+  border-color: rgba(148, 163, 184, 0.35);
+}
+
+.cell-box {
+  transition: transform 0.15s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeInCell 0.35s ease backwards;
+}
+
+.cell-box:hover {
+  background: var(--bg-cell-hover);
+}
+
+.cell-box.cell-focused {
+  transform: scale(1.06);
+}
+
+.cell-box.pop {
+  animation: popLetter 0.2s ease;
+}
+
+.cell-box.correct {
+  animation: pulseSuccess 0.45s ease;
+}
+
+.cell-box.wrong {
+  animation: shakeError 0.38s ease;
+}
+
+.clue-item {
+  transition: all 0.18s ease;
+}
+
+.clue-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+  color: var(--text-main);
+}
+
+@keyframes fadeInCell {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes popLetter {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.14); }
+  100% { transform: scale(1); }
+}
+
+@keyframes pulseSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.08); box-shadow: 0 0 14px rgba(34, 197, 94, 0.45); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shakeError {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-3px); }
+}
