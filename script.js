@@ -347,3 +347,74 @@ function focarSeExistir(r, c) {
 mapearGrade();
 renderizarTabuleiro();
 renderizarPistas();
+
+function conferirRespostas() {
+  document.querySelectorAll(".cell-box").forEach((box) => {
+    box.classList.remove("correct", "wrong");
+  });
+
+  let acertos = 0;
+
+  PALAVRAS.forEach((item) => {
+    let palavraCorreta = true;
+    const celulasDaPalavra = [];
+
+    for (let i = 0; i < item.palavra.length; i++) {
+      const r = item.direcao === "H" ? item.linha : item.linha + i;
+      const c = item.direcao === "H" ? item.coluna + i : item.coluna;
+      const celula = grade[r][c];
+      celulasDaPalavra.push(celula);
+
+      if (celula.elementoInput.value !== item.palavra[i]) {
+        palavraCorreta = false;
+      }
+    }
+
+    const pistaLi = document.getElementById(`pista-${item.numero}-${item.direcao}`);
+
+    if (palavraCorreta) {
+      acertos++;
+      pistaLi.classList.add("solved");
+      celulasDaPalavra.forEach((cel) => {
+        cel.elementoBox.classList.remove("wrong");
+        cel.elementoBox.classList.add("correct");
+      });
+    } else {
+      pistaLi.classList.remove("solved");
+      celulasDaPalavra.forEach((cel) => {
+        if (!cel.elementoBox.classList.contains("correct") && cel.elementoInput.value !== "") {
+          cel.elementoBox.classList.add("wrong");
+        }
+      });
+    }
+  });
+
+  atualizarContador(acertos);
+}
+
+function reiniciarJogo() {
+  document.querySelectorAll(".cell-input").forEach((input) => {
+    input.value = "";
+  });
+  document.querySelectorAll(".cell-box").forEach((box) => {
+    box.classList.remove("correct", "wrong", "pop");
+  });
+  document.querySelectorAll(".clue-item").forEach((li) => {
+    li.classList.remove("solved");
+  });
+
+  atualizarContador(0);
+}
+
+function atualizarContador(acertos) {
+  const pill = document.getElementById("contador");
+  const texto = document.getElementById("texto-contador");
+  texto.textContent = `${acertos} de ${PALAVRAS.length} palavras`;
+
+  pill.classList.remove("updated");
+  void pill.offsetWidth;
+  pill.classList.add("updated");
+}
+
+document.getElementById("btn-conferir").addEventListener("click", conferirRespostas);
+document.getElementById("btn-reiniciar").addEventListener("click", reiniciarJogo);
