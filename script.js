@@ -136,6 +136,9 @@ const grade = Array.from({ length: TOTAL_LINHAS }, () =>
   Array.from({ length: TOTAL_COLUNAS }, () => null)
 );
 
+let palavraAtual = PALAVRAS[0];
+let celulaFocada = null;
+
 function mapearGrade() {
   PALAVRAS.forEach((item) => {
     for (let i = 0; i < item.palavra.length; i++) {
@@ -177,6 +180,7 @@ function renderizarTabuleiro() {
 
       const box = document.createElement("div");
       box.className = "cell-box";
+      box.style.animationDelay = `${(r + c) * 12}ms`;
 
       if (celula.numeros.length > 0) {
         const numSpan = document.createElement("span");
@@ -190,6 +194,13 @@ function renderizarTabuleiro() {
       input.maxLength = 1;
       input.className = "cell-input";
       input.setAttribute("aria-label", `Linha ${r + 1}, Coluna ${c + 1}`);
+      input.dataset.linha = r;
+      input.dataset.coluna = c;
+
+      input.addEventListener("focus", () => aoFocarCelula(r, c));
+      input.addEventListener("click", () => alternarDirecaoSeMesmaCelula(r, c));
+      input.addEventListener("keydown", (e) => aoPressionarTecla(e, r, c));
+      input.addEventListener("input", (e) => aoDigitar(e, r, c));
 
       box.appendChild(input);
       tabuleiroEl.appendChild(box);
@@ -210,12 +221,127 @@ function renderizarPistas() {
     li.id = `pista-${item.numero}-${item.direcao}`;
     li.innerHTML = `<strong>${item.numero}.</strong> ${item.pista}`;
 
+    li.addEventListener("click", () => {
+      selecionarPalavra(item);
+      const primeiraCelula = grade[item.linha][item.coluna];
+      primeiraCelula.elementoInput.focus();
+    });
+
     if (item.direcao === "H") {
       ulH.appendChild(li);
     } else {
       ulV.appendChild(li);
     }
   });
+}
+
+function selecionarPalavra(item) {
+  palavraAtual = item;
+
+  document.querySelectorAll(".cell-box").forEach((box) => box.classList.remove("word-active"));
+  document.querySelectorAll(".clue-item").forEach((li) => li.classList.remove("active"));
+
+  for (let i = 0; i < item.palavra.length; i++) {
+    const r = item.direcao === "H" ? item.linha : item.linha + i;
+    const c = item.direcao === "H" ? item.coluna + i : item.coluna;
+    grade[r][c].elementoBox.classList.add("word-active");
+  }
+
+  const pistaLi = document.getElementById(`pista-${item.numero}-${item.direcao}`);
+  if (pistaLi) {
+    pistaLi.classList.add("active");
+    pistaLi.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  const barraPista = document.getElementById("pista-ativa");
+  const dirTexto = item.direcao === "H" ? "Horizontal" : "Vertical";
+  barraPista.innerHTML = `<strong>${item.numero} (${dirTexto}):</strong>&nbsp;${item.pista}`;
+}
+
+function aoFocarCelula(r, c) {
+  const celula = grade[r][c];
+  document.querySelectorAll(".cell-box").forEach((box) => box.classList.remove("cell-focused"));
+  celula.elementoBox.classList.add("cell-focused");
+
+  const pertenceAtual = celula.palavras.some(
+    (p) => p.numero === palavraAtual.numero && p.direcao === palavraAtual.direcao
+  );
+
+  if (!pertenceAtual) {
+    selecionarPalavra(celula.palavras[0]);
+  } else {
+    selecionarPalavra(palavraAtual);
+  }
+
+  celulaFocada = `${r}-${c}`;
+}
+
+function alternarDirecaoSeMesmaCelula(r, c) {
+  const celula = grade[r][c];
+  if (celulaFocada === `${r}-${c}` && celula.palavras.length > 1) {
+    const outra = celula.palavras.find(
+      (p) => p.numero !== palavraAtual.numero || p.direcao !== palavraAtual.direcao
+    );
+    if (outra) selecionarPalavra(outra);
+  }
+}
+
+function aoDigitar(e, r, c) {
+  const input = e.target;
+  const valorLimpo = input.value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z]/g, "")
+    .toUpperCase();
+
+  input.value = valorLimpo.slice(-1);
+
+  const box = grade[r][c].elementoBox;
+  box.classList.remove("correct", "wrong", "pop");
+  void box.offsetWidth;
+  if (input.value) {
+    box.classList.add("pop");
+    moverFoco(r, c, 1);
+  }
+}
+
+function aoPressionarTecla(e, r, c) {
+  if (e.key === "Backspace") {
+    e.preventDefault();
+    const input = grade[r][c].elementoInput;
+    const box = grade[r][c].elementoBox;
+    box.classList.remove("correct", "wrong");
+
+    if (input.value !== "") {
+      input.value = "";
+    } else {
+      moverFoco(r, c, -1);
+    }
+  } else if (e.key === "ArrowRight") {
+    e.preventDefault();
+    focarSeExistir(r, c + 1);
+  } else if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    focarSeExistir(r, c - 1);
+  } else if (e.key === "ArrowDown") {
+    e.preventDefault();
+    focarSeExistir(r + 1, c);
+  } else if (e.key === "ArrowUp") {
+    e.preventDefault();
+    focarSeExistir(r - 1, c);
+  }
+}
+
+function moverFoco(r, c, passo) {
+  const proxR = palavraAtual.direcao === "V" ? r + passo : r;
+  const proxC = palavraAtual.direcao === "H" ? c + passo : c;
+  focarSeExistir(proxR, proxC);
+}
+
+function focarSeExistir(r, c) {
+  if (r >= 0 && r < TOTAL_LINHAS && c >= 0 && c < TOTAL_COLUNAS && grade[r][c]) {
+    grade[r][c].elementoInput.focus();
+  }
 }
 
 mapearGrade();
